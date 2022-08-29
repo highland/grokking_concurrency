@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-"""Program for cracking the password consisting with only numbers using brute force approach sequntially"""
+"""Program for cracking the password consisting with only numbers using brute force approach sequentially"""
 
 import time
 import math
@@ -17,10 +17,7 @@ def get_combinations(*, length: int, min_number: int = 0, max_number: int = None
 
     # go through all possible combinations in a given range
     for i in range(min_number, max_number + 1):
-        str_num = str(i)
-        # fill in the missing numbers with zeros
-        zeros = "0" * (length - len(str_num))
-        combinations.append("".join((zeros, str_num)))
+        combinations.append(f'{i:0>{length}}')   # convert i to string and pad on left with zeroes
     return combinations
 
 
