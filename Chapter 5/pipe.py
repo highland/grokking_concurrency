@@ -11,30 +11,30 @@ class Writer(Thread):
     def __init__(self, conn: int):
         super().__init__()
         self.conn = conn
+        self.name = 'Writer'
 
     def run(self) -> None:
         # opening stream for writing
         pipe = os.fdopen(self.conn, "w")
-        print(f"Thread({current_thread().ident}): Sending rubber duck...")
+        print(f"{current_thread().name}: Sending rubber duck...")
         pipe.write("Rubber duck")
         # close the writer file descriptor
         pipe.close()
-
 
 class Reader(Thread):
     """Writer thread will write messages into the pipe"""
     def __init__(self, conn: int):
         super().__init__()
         self.conn = conn
+        self.name = 'Reader'
 
     def run(self) -> None:
         # opening stream for reading
         pipe = os.fdopen(self.conn)
-        print(f"Thread({current_thread().ident}): Reading...")
+        print(f"{current_thread().name}: Reading...")
         # reading 11 bytes ~ 11 char symbols - just enough to get a "rubber duck"
         msg = pipe.readline()
-        print(f"Thread({current_thread().ident}): Received: {msg}")
-
+        print(f"{current_thread().name}: Received: {msg}")
 
 def main() -> None:
     # file descriptors for reading and writing
