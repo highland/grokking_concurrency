@@ -2,43 +2,38 @@
 
 """ Using pipes for IPC """
 
-import os
 from threading import Thread, current_thread
+from multiprocessing import Pipe
+from multiprocessing.connection import Connection
 
 
 class Writer(Thread):
     """Writer thread will write messages into the pipe"""
-    def __init__(self, conn: int):
+    def __init__(self, conn: Connection):
         super().__init__()
         self.conn = conn
         self.name = 'Writer'
 
     def run(self) -> None:
-        # opening stream for writing
-        pipe = os.fdopen(self.conn, "w")
         print(f"{current_thread().name}: Sending rubber duck...")
-        pipe.write("Rubber duck")
-        # close the writer file descriptor
-        pipe.close()
+        self.conn.send("Rubber duck")
 
 class Reader(Thread):
     """Writer thread will write messages into the pipe"""
-    def __init__(self, conn: int):
+    def __init__(self, conn: Connection):
         super().__init__()
         self.conn = conn
         self.name = 'Reader'
 
     def run(self) -> None:
-        # opening stream for reading
-        pipe = os.fdopen(self.conn)
         print(f"{current_thread().name}: Reading...")
-        # reading 11 bytes ~ 11 char symbols - just enough to get a "rubber duck"
-        msg = pipe.readline()
+        msg = self.conn.recv()
         print(f"{current_thread().name}: Received: {msg}")
 
+
 def main() -> None:
-    # file descriptors for reading and writing
-    reader_conn, writer_conn = os.pipe()
+    # Connections for reading and writing
+    reader_conn, writer_conn = Pipe()
     reader = Reader(reader_conn)
     writer = Writer(writer_conn)
 

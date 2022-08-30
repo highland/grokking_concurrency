@@ -3,61 +3,50 @@
 """ Using sockets for IPC """
 
 import socket
-import os.path
 import time
 from threading import Thread, current_thread
 
-# in Unix everything is a file
-SOCK_FILE = "./mailbox"
 BUFFER_SIZE = 1024
-
+host = 'localhost'
+port = 1812
 
 class Sender(Thread):
     def run(self) -> None:
-        # AF_UNIX (Unix domain socket) and SOCK_STREAM are constants represent
-        # the socket family and socket type respectively
-        client = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
-        client.connect(SOCK_FILE)
-
-        messages = [b"Hello", b" ", b"world!"]
+        self.name = 'Sender'
+        client = socket.socket()
+        client.connect((host, port))
+        
+        messages = ["Hello", " ", "world!"]
         for msg in messages:
-            print(f"Thread({current_thread().ident}): Send: {msg}")
-            client.sendall(msg)
+            print(f"{current_thread().name}: Sent: '{msg}'")
+            client.sendall(str.encode(msg))
 
         client.close()
 
 
 class Receiver(Thread):
     def run(self) -> None:
-        # AF_UNIX (Unix domain socket) and SOCK_STREAM are constants represent
-        # the socket family and socket type respectively
-        server = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+        self.name = 'Receiver'
+        server = socket.socket()
         # bind socket to the file
-        server.bind(SOCK_FILE)
+        server.bind((host, port))
         # let's start listening mode for this socket
         server.listen()
 
-        print(f"Thread({current_thread().ident}): Listening of incoming messages...")
+        print(f"{current_thread().name}: Listening for incoming messages...")
         # accept a connection
         conn, addr = server.accept()
 
-        while True:
-            # receive data from socket
-            data = conn.recv(BUFFER_SIZE)
-            if not data:
-                break
-            message = data.decode()
-            print(f"Thread({current_thread().ident}): Received: `{message}`")
+        # receive data from socket
+        while data := conn.recv(BUFFER_SIZE):
+            message = data.decode()   # bytes to string
+            print(f"{current_thread().name}: Received: '{message}'")
 
         server.close()
 
 
 def main() -> None:
-    # verify if exists the sock file
-    if os.path.exists(SOCK_FILE):
-        os.remove(SOCK_FILE)
-
-    # receiver will create a socket and socket file
+    # receiver will create a socket
     receiver = Receiver()
     receiver.start()
     # waiting till the socket has been created
@@ -68,9 +57,6 @@ def main() -> None:
     # block the main thread until the child threads has finished
     for thread in [receiver, sender]:
         thread.join()
-
-    # cleaning up
-    os.remove(SOCK_FILE)
 
 
 if __name__ == "__main__":
