@@ -5,20 +5,16 @@
 import time
 import math
 import hashlib
-import typing
+import typing as T
 
 
-def get_combinations(*, length: int, min_number: int = 0, max_number: int = None) -> typing.List[str]:
+def get_combinations(*, length: int, min_number: int = 0, max_number: int = None) -> T.List[str]:
     """Generate all possible password combinations"""
-    combinations = []
     if not max_number:
         # calculating maximum number based on the length
         max_number = int(math.pow(10, length) - 1)
-
-    # go through all possible combinations in a given range
-    for i in range(min_number, max_number + 1):
-        combinations.append(f'{i:0>{length}}')   # convert i to string and pad on left with zeroes
-    return combinations
+    # go through all possible combinations in a given range and convert to strings of given length
+    return [f'{i:0>{length}}' for i in range(min_number, max_number + 1)]
 
 
 def get_crypto_hash(password: str) -> str:
@@ -26,17 +22,15 @@ def get_crypto_hash(password: str) -> str:
     return hashlib.sha256(password.encode()).hexdigest()
 
 
-def check_password(expected_crypto_hash: str, password: str) -> bool:
-    crypto_hash = get_crypto_hash(password)
+def check_password(expected_crypto_hash: str, possible_password: str) -> bool:
+    actual_crypto_hash = get_crypto_hash(possible_password)
     # compare the resulted cryptographic hash with the one stored on the system
-    if expected_crypto_hash.upper() == crypto_hash.upper():
-        return True
-    return False
+    return expected_crypto_hash == actual_crypto_hash
 
 
 def crack_password(crypto_hash: str, length: int) -> None:
     """Brute force the password combinations"""
-    print(f"Processing number combinations sequentially")
+    print("Processing number combinations sequentially")
     start_time = time.perf_counter()
     combinations = get_combinations(length=length)
     for combination in combinations:
