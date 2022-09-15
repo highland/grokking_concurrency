@@ -8,7 +8,7 @@ from pacman import get_user_input, compute_game_world, render_next_screen
 
 
 class Task(Thread):
-    def __init__(self, func: T.Callable[[], None]):
+    def __init__(self, func: T.Callable[..., None]):
         super().__init__()
         self.func = func
 
@@ -23,9 +23,9 @@ def arcade_machine() -> None:
     compute_game_world_task = Task(compute_game_world)
     render_next_screen_task = Task(render_next_screen)
 
-    get_user_input_task.run()
-    compute_game_world_task.run()
-    render_next_screen_task.run()
+    get_user_input_task.start()
+    compute_game_world_task.start()
+    render_next_screen_task.start()
 
 
 if __name__ == "__main__":
