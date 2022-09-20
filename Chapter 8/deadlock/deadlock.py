@@ -23,18 +23,18 @@ class Philosopher(Thread):
         global dumplings
 
         while dumplings > 0:
-            self.left_chopstick.lock.acquire()
-            print(f"{self.left_chopstick.name} grabbed by {self.name}")
-            print(f'\t{self.name} has {self.left_chopstick.name}, waiting for {self.right_chopstick.name}')
-            self.right_chopstick.lock.acquire()
-            print(f"{self.right_chopstick.name} grabbed by {self.name}")
+            with self.left_chopstick.lock:
+                print(
+                    f"{self.left_chopstick.name} grabbed by {self.name} now needs {self.right_chopstick.name}")
 
-            dumplings -= 1
-            print(f"{self.name} eats a dumpling. Dumplings left: {dumplings}")
+                with self.right_chopstick.lock:
+                    print(f"{self.right_chopstick.name} grabbed by {self.name}")
 
-            self.right_chopstick.lock.release()
-            print(f"{self.right_chopstick.name} released by {self.name}")
-            self.left_chopstick.lock.release()
+                    dumplings -= 1
+                    print(
+                        f"{self.name} eats a dumpling. Dumplings left: {dumplings}")
+
+                print(f"{self.right_chopstick.name} released by {self.name}")
             print(f"{self.left_chopstick.name} released by {self.name}")
             time.sleep(THREAD_DELAY)
 
