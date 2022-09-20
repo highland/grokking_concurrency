@@ -4,7 +4,7 @@
 
 import typing as T
 from threading import Thread, Timer, Event
-import time, sys
+from sys import setswitchinterval
 
 from pacman import get_user_input, compute_game_world, render_next_screen
 
@@ -59,9 +59,5 @@ def arcade_machine() -> None:
 
 
 if __name__ == "__main__":
+    setswitchinterval(100)   # turn off python's own thread time sharing
     arcade_machine()
-    try:
-        while True:
-            time.sleep(.1)
-    except KeyboardInterrupt:
-        sys.exit(0)
