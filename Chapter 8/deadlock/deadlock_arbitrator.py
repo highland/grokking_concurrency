@@ -19,16 +19,16 @@ class Waiter:
     def ask_for_chopsticks(self, left_chopstick: LockWithName, right_chopstick: LockWithName):
         with self.mutex:
             left_chopstick.lock.acquire()
-            print(f"{left_chopstick.name} chopstick grabbed")
+            print(f"{left_chopstick.name} grabbed")
             right_chopstick.lock.acquire()
-            print(f"{right_chopstick.name} chopstick grabbed")
+            print(f"{right_chopstick.name} grabbed")
 
     def release_chopsticks(self, left_chopstick: LockWithName,
                            right_chopstick: LockWithName) -> None:
         right_chopstick.lock.release()
-        print(f"{right_chopstick.name} chopstick released")
+        print(f"{right_chopstick.name} released")
         left_chopstick.lock.release()
-        print(f"{left_chopstick.name} chopstick released")
+        print(f"{left_chopstick.name} released\n")
 
 
 class Philosopher(Thread):
@@ -45,11 +45,12 @@ class Philosopher(Thread):
         global dumplings
 
         while dumplings > 0:
+            print(f"{self.name} asks waiter for chopsticks")
             self.waiter.ask_for_chopsticks(self.left_chopstick, self.right_chopstick)
 
             dumplings -= 1
-            print(f"{self.name} eat a dumpling. Dumplings left: {dumplings}")
-
+            print(f"{self.name} eats a dumpling. Dumplings left: {dumplings}")
+            print(f"{self.name} returns chopsticks to waiter")
             self.waiter.release_chopsticks(self.left_chopstick, self.right_chopstick)
             time.sleep(THREAD_DELAY)
 
