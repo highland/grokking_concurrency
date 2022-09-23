@@ -6,32 +6,27 @@ import typing as T
 import random
 from math import ceil
 from threading import Thread
+from collections import Counter
 
 
 class StaffMember(Thread):
     def __init__(self, votes: T.List[int]):
         super().__init__()
         self.votes = votes
-        self.summary = {}
-
-    def run(self) -> None:
-        for vote in self.votes:
-            if self.summary.get(vote):
-                self.summary[vote] += 1
-            else:
-                self.summary[vote] = 1
-
-    def join(self, *args) -> T.Dict[int, int]:
-        # join method that blocks the thread until the child threads has finished
-        Thread.join(self, *args)
-        return self.summary
+        
+    def run(self):
+        self.counts = Counter(self.votes)
+    
+    def join(self) -> T.Dict[int, int]:
+        super().join()
+        return self.counts
 
 
 def process_votes(votes: T.List[int]) -> None:
     jobs = []
     vote_count = len(votes)
     member_count = 4
-    vote_per_pile = ceil(vote_count / member_count)
+    vote_per_pile = vote_count // member_count
 
     # ---- Fork step ----
     for i in range(member_count):
@@ -47,14 +42,9 @@ def process_votes(votes: T.List[int]) -> None:
     for j in jobs:
         votes_summaries.append(j.join())
 
-    total_summary = {}
+    total_summary = Counter()
     for vote_summary in votes_summaries:
-        for candidate in vote_summary:
-            # summation of each key
-            if total_summary.get(candidate):
-                total_summary[candidate] += vote_summary[candidate]
-            else:
-                total_summary[candidate] = vote_summary[candidate]
+        total_summary.update(vote_summary)
     print(f"Total number of votes: {total_summary}")
     # ---- End Join step ----
 

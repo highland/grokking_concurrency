@@ -4,16 +4,12 @@
 
 import typing as T
 import random
+from collections import Counter
 
 
 def process_votes(votes: T.List[int]) -> T.Dict[int, int]:
-    total_summary = {}
-    for candidate in votes:
-        if total_summary.get(candidate):
-            total_summary[candidate] += 1
-        else:
-            total_summary[candidate] = 1
-    return total_summary
+    counts = Counter(votes)
+    return counts
 
 
 if __name__ == "__main__":
@@ -22,4 +18,5 @@ if __name__ == "__main__":
     # generating a huge list of votes
     # each vote is an integer represents the selected candidate
     votes = [random.randint(1, num_candidates) for _ in range(num_voters)]
-    process_votes(votes)
+    counts = process_votes(votes)
+    print(counts)
