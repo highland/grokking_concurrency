@@ -5,5 +5,5 @@ __pycache__/
 .idea/
 .DS_Store
 
-Chapter ?/.spyproject/*
-Chapter ?/__pycache__/*
+Chapter */.spyproject/*
+Chapter */__pycache__/*
