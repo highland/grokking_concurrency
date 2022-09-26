@@ -11,27 +11,26 @@ TOTAL_SPOTS = 3
 
 
 class Garage:
-    cars: T.List[str]  # list of parked cars
 
     def __init__(self):
         self.semaphore = threading.Semaphore(TOTAL_SPOTS)
         self.cars_lock = threading.Lock()
-        self.cars = []
+        self.parked_cars: T.List[str] = []
 
     def count_parked_cars(self):
-        return len(self.cars)
+        return len(self.parked_cars)
 
     def enter(self, car_name: str) -> None:
         """Enter the garage"""
         self.semaphore.acquire()
         with self.cars_lock:
-            self.cars.append(car_name)
+            self.parked_cars.append(car_name)
             print(f"{car_name} car parked")
 
     def exit(self, car_name: str) -> None:
         """Car exits the garage"""
         with self.cars_lock:
-            self.cars.remove(car_name)
+            self.parked_cars.remove(car_name)
             print(f"{car_name} leaving")
         self.semaphore.release()
 
