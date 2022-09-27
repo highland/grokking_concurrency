@@ -23,11 +23,11 @@ class Philosopher(Thread):
         global dumplings
 
         while dumplings > 0:
-            with self.left_chopstick.lock:
+            with self.left_chopstick:
                 print(
                     f"{self.left_chopstick.name} grabbed by {self.name} now needs {self.right_chopstick.name}")
 
-                with self.right_chopstick.lock:
+                with self.right_chopstick:
                     print(f"{self.right_chopstick.name} grabbed by {self.name}")
 
                     dumplings -= 1
