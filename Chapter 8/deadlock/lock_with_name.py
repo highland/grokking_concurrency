@@ -18,6 +18,9 @@ class LockWithName:
     def release(self):
         self._lock.release()
 
+    def locked(self):
+        return self._lock.locked()
+    
     def __enter__(self):
         """ Allows this to be used with context management. """
         self.acquire()
