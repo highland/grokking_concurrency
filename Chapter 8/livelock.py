@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
 
-"""Three philosophers thinking and eating dumplings - deadlock happens"""
-
 import time
 from threading import Thread
 from deadlock.lock_with_name import LockWithName
@@ -22,19 +20,16 @@ class Philosopher(Thread):
         global dumplings
 
         while dumplings > 0:
-            self.left_chopstick.lock.acquire()
-            print(f"{self.left_chopstick.name} chopstick grabbed by {self.name}")
-            if self.right_chopstick.lock.locked():
-                print(f"{self.name} cannot get the {self.right_chopstick.name} chopstick, giving up...")
-            else:
-                self.right_chopstick.lock.acquire()
-                print(f"{self.right_chopstick.name} chopstick grabbed by {self.name}")
-                dumplings -= 1
-                print(f"{self.name} eat a dumpling. Dumplings left: {dumplings}")
-                time.sleep(THREAD_DELAY)
-                self.right_chopstick.lock.release()
-            self.left_chopstick.lock.release()
-
+            with self.left_chopstick:
+                print(f"{self.left_chopstick.name} chopstick grabbed by {self.name}")
+                if self.right_chopstick.locked():
+                    print(f"{self.name} cannot get the {self.right_chopstick.name} chopstick, giving up...")
+                else:
+                    with self.right_chopstick:
+                        print(f"{self.right_chopstick.name} chopstick grabbed by {self.name}")
+                        dumplings -= 1
+                        print(f"{self.name} eat a dumpling. Dumplings left: {dumplings}")
+                        time.sleep(THREAD_DELAY)
 
 if __name__ == "__main__":
     chopstick_a = LockWithName("chopstick_a")
