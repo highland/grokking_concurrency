@@ -9,7 +9,7 @@ from threading import Thread, Lock
 from lock_with_name import LockWithName
 
 THREAD_DELAY = 0.1
-dumplings = 100
+dumplings = 20
 
 
 class Waiter:
@@ -18,16 +18,16 @@ class Waiter:
 
     def ask_for_chopsticks(self, left_chopstick: LockWithName, right_chopstick: LockWithName):
         with self.mutex:
-            left_chopstick.lock.acquire()
+            left_chopstick.acquire()
             print(f"{left_chopstick.name} grabbed")
-            right_chopstick.lock.acquire()
+            right_chopstick.acquire()
             print(f"{right_chopstick.name} grabbed")
 
     def release_chopsticks(self, left_chopstick: LockWithName,
                            right_chopstick: LockWithName) -> None:
-        right_chopstick.lock.release()
+        right_chopstick.release()
         print(f"{right_chopstick.name} released")
-        left_chopstick.lock.release()
+        left_chopstick.release()
         print(f"{left_chopstick.name} released\n")
 
 
