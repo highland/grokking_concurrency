@@ -4,7 +4,6 @@
 
 import typing as T
 import random
-from math import ceil
 from threading import Thread
 from collections import Counter
 
