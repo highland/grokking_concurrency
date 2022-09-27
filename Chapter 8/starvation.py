@@ -22,15 +22,13 @@ class Philosopher(Thread):
 
         dumplings_eaten = 0
         while dumplings > 0:
-            self.left_chopstick.lock.acquire()
-            self.right_chopstick.lock.acquire()
-            if dumplings > 0:
-                dumplings -= 1
-                dumplings_eaten += 1
-                time.sleep(THREAD_DELAY)
-            self.right_chopstick.lock.release()
-            self.left_chopstick.lock.release()
-        print(f"{self.name} took {dumplings_eaten} pieces")
+            with self.left_chopstick:
+                with self.right_chopstick:
+                    if dumplings > 0:
+                        dumplings -= 1
+                        dumplings_eaten += 1
+                        time.sleep(THREAD_DELAY)
+        print(f"{self.name} ate {dumplings_eaten} pieces")
 
 
 if __name__ == "__main__":
