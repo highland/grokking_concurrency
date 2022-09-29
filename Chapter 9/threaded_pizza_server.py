@@ -15,6 +15,7 @@ class Handler(Thread):
         super().__init__()
         self.conn = conn
 
+
     def run(self) -> None:
         print(f"Connected to {self.conn.getpeername()}")
         try:
@@ -40,29 +41,22 @@ class Server:
         try:
             print(f"Starting up at: {ADDRESS}")
             self.server_socket = socket.create_server(ADDRESS)
-            print("Listen for incoming connections")
+            print("Listening for incoming connections")
             # on server side let's start listening mode for this socket
+            self.server_socket.settimeout(60) # Don't wait forever
             self.server_socket.listen()
             print("Waiting for a connection")
         except OSError:
             self.server_socket.close()
             print("\nServer stopped.")
 
-    def accept(self):
-        # accepting the incoming connection, blocking
-        # conn = is a new socket object usable to send and receive data on the connection
-        # addr = is the address bound to the socket on the other end of connection
-        conn, address = self.server_socket.accept()
-        return conn
-
     def start(self):
         try:
             while True:
-                conn = self.accept(1)
+                conn, address = self.server_socket.accept()
+                print(f"Client connection request from {address}")
                 thread = Handler(conn)
                 thread.start()
-        except KeyboardInterrupt:
-            print('Server Closing') 
         finally:
             self.server_socket.close()
             print("\nServer stopped.")
