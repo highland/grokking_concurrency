@@ -6,13 +6,11 @@ Simple Pizza Client
 import socket
 
 BUFFER_SIZE = 1024
-HOST = "127.0.0.1"  # The server's hostname or IP address
-PORT = 12345  # The port used by the server
+ADDRESS = ("127.0.0.1", 12345)   # address and port of the host machine
 
-with socket.socket() as s:
-    s.connect((HOST, PORT))
+with socket.create_connection(ADDRESS) as conn:
     while order := input('How many pizzas do you want? '):
-        s.send(order.encode())
-        response = s.recv(BUFFER_SIZE)
-        print(f'Server replied {response.decode()}')
+        conn.send(order.encode())
+        response = conn.recv(BUFFER_SIZE)
+        print(f'Server replied {response}')
 
