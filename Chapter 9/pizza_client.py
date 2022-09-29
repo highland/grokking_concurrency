@@ -13,4 +13,5 @@ with socket.create_connection(ADDRESS) as conn:
         conn.send(order.encode())
         response = conn.recv(BUFFER_SIZE)
         print(f'Server replied {response}')
-
+    print('Client closing')
+        

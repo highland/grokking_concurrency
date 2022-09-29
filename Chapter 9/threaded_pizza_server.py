@@ -7,8 +7,7 @@ from threading import Thread
 
 # the maximum amount of data to be received at once
 BUFFER_SIZE = 1024
-HOST = "127.0.0.1"  # address of the host machine
-PORT = 12345  # port to listen on (non-privileged ports are > 1023)
+ADDRESS = ("127.0.0.1", 12345)   # address and port of the host machine
 
 
 class Handler(Thread):
@@ -19,20 +18,15 @@ class Handler(Thread):
     def run(self) -> None:
         print(f"Connected to {self.conn.getpeername()}")
         try:
-            while True:
-                data = self.conn.recv(BUFFER_SIZE)
-                if not data:
-                    break
+            while (data := self.conn.recv(BUFFER_SIZE)) != b'\n':
                 try:
                     order = int(data.decode())
                     response = f"Thank you for ordering {order} pizzas\n"
                 except ValueError:
-                    response = "Wrong number of orders, please try again\n"
+                    response = f"Unrecognisable order, '{data}' - please try again\n"
                 print(f"Sending message to {self.conn.getpeername()}")
                 # send a response
                 self.conn.send(response.encode())
-                # Note: recommended way is to use .sendall(),
-                # but we will stick with send to keep reader's mental model
         finally:
             # server expects the client to close its side of the connection when it’s done.
             # In a real application, we should use timeout for clients if they don’t send
@@ -43,20 +37,14 @@ class Handler(Thread):
 
 class Server:
     def __init__(self):
-        # AF_UNIX and SOCK_STREAM are constants represent the protocol and socket type respectively
-        # here we create a TCP/IP socket
-        self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        # allows multiple sockets to be bound to an identical socket address
-        self.server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         try:
-            print(f"Starting up on: {HOST}:{PORT}")
-            # bind a socket to a specific network interface and port number
-            self.server_socket.bind((HOST, PORT))
+            print(f"Starting up at: {ADDRESS}")
+            self.server_socket = socket.create_server(ADDRESS)
             print("Listen for incoming connections")
             # on server side let's start listening mode for this socket
             self.server_socket.listen()
             print("Waiting for a connection")
-        except Exception:
+        except OSError:
             self.server_socket.close()
             print("\nServer stopped.")
 
@@ -70,9 +58,11 @@ class Server:
     def start(self):
         try:
             while True:
-                conn = self.accept()
-                thread = Handler(conn=conn)
+                conn = self.accept(1)
+                thread = Handler(conn)
                 thread.start()
+        except KeyboardInterrupt:
+            print('Server Closing') 
         finally:
             self.server_socket.close()
             print("\nServer stopped.")
