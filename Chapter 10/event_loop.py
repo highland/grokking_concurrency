@@ -3,7 +3,7 @@
 """Simple single threaded event loop implementation"""
 
 from collections import deque
-from threading import Thread
+from threading import Thread, Lock
 from time import sleep
 
 
@@ -19,24 +19,33 @@ class Event:
 
 class EventLoop(Thread):
     """ Maintains a deque of Events and executes them. """
+    
 
     def __init__(self):
         super().__init__()
         # internal event queue
         self._events: deque[Event] = deque()
+        # manage concurrent access to event queue
+        self._mutex = Lock()
+
 
     def register_event(self, event: Event):
-        self._events.append(event)
+        with self._mutex:
+            self._events.append(event)
 
     def run(self):
+        print(f'Queue running with {len(self._events)} events')
         self._run_forever()
 
     def _run_forever(self):
-        while True:
+        while True:   # busy-waiting
             # execute the action of the next event
-            while self._events:
-                event = self._events.popleft()
-                event.execute_action()
+            with self._mutex:
+                try:
+                    event = self._events.popleft()
+                except IndexError:
+                    continue
+            event.execute_action()
 
 
 def knock(event: Event):
