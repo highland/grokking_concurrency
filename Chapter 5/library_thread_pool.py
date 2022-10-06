@@ -8,7 +8,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from threading import current_thread
 
 
-def cpu_waster(i: int) -> None:
+def cpu_waster(i: int) -> str:
     """Wasting the processor time, professionally"""
     name = current_thread().getName()
     print(f"{name} doing Task {i}")
