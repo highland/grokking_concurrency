@@ -9,10 +9,7 @@ import typing as T
 import hashlib
 from multiprocessing import Pool, Manager
 
-Flag = T.TypeVar('multiprocessing.Event')
-
-
-def get_combinations(*, length: int, min_number: int = 0, max_number: int = None) -> T.List[str]:
+def get_combinations(*, length: int, min_number: int = 0, max_number: T.Optional[int] = None) -> T.List[str]:
     """Generate all possible password combinations"""
     if not max_number:
         # calculating maximum number based on the length
@@ -32,7 +29,7 @@ def check_password(expected_crypto_hash: str, possible_password: str) -> bool:
     return expected_crypto_hash == actual_crypto_hash
 
 
-def get_ranges(num_ranges: int, length: int) -> T.List[T.Tuple[int, int]]:
+def get_ranges(num_ranges: int, length: int) -> T.Iterator[T.Tuple[int, int]]:
     """Splitting the passwords into batches using break points"""
     max_number = int(math.pow(10, length) - 1)
     start_points = [int(max_number / num_ranges * i) for i in range(num_ranges)]
@@ -42,11 +39,11 @@ def get_ranges(num_ranges: int, length: int) -> T.List[T.Tuple[int, int]]:
 
 
 def crack_batch(crypto_hash: str, length: int, start: int, end: int,
-                flag: Flag, result: list) -> str:
+                flag, result: list[str]) -> None:
     """Brute force the password combinations"""
     print(f'checking {start} to {end}')
     combinations = get_combinations(
-        length=length, min_number=start, max_number=end)
+        length = length, min_number = start, max_number=end)
     for combination in combinations:
         if flag.is_set():   #  some other process found it
             return
@@ -61,6 +58,8 @@ def crack_password_parallel(crypto_hash: str, length: int) -> None:
     """Orchestrate cracking the password between different processes"""
     # getting number of available processors
     num_cores = os.cpu_count()
+    if not num_cores:
+        num_cores = 4
 
     print("Processing number combinations concurrently")
     start_time = time.perf_counter()
@@ -68,7 +67,7 @@ def crack_password_parallel(crypto_hash: str, length: int) -> None:
     # set up inter-process communication
     shared = Manager()
     flag = shared.Event()
-    result = shared.list()
+    result: T.List[str] = shared.list()
 
     # processing each batch in a separate process concurrently
     with Pool() as pool:
