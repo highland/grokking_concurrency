@@ -13,10 +13,12 @@ GLOBAL_FLAG.set()
 
 TIME_SLICE = 5  # seconds
 
+
 class Task(Thread):
     """ A Thread running a given pacman function repeatedly
         while blocking to await a global flag.
     """
+
     def __init__(self, func: Callable[..., None]):
         super().__init__(daemon=True)   # so that it is closed at end
         self.func = func
@@ -34,9 +36,10 @@ class Task(Thread):
 
 class RepeatTimer(Timer):
     """ Calls the given function repeatedly at specified intervals."""
+
     def run(self) -> None:
         while not self.finished.wait(self.interval):
-            self.function(*self.args,**self.kwargs)
+            self.function(*self.args, **self.kwargs)
 
 
 def clock_tick() -> None:
@@ -55,7 +58,6 @@ def arcade_machine() -> None:
     RepeatTimer(TIME_SLICE, clock_tick).start()
     for task in tasks:
         task.start()
-
 
 
 if __name__ == "__main__":
