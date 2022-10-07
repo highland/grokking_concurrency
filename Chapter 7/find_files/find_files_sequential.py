@@ -4,7 +4,7 @@
 
 import os
 import time
-import typing as T
+from typing import List
 from os.path import isfile, join
 
 
@@ -14,7 +14,7 @@ def search_file(file_name: str, search_string: str) -> bool:
         return search_string in file.read()
 
 
-def search_files_sequentially(files: T.List[str], search_string: str) -> None:
+def search_files_sequentially(files: List[str], search_string: str) -> None:
     for file_name in files:
         result = search_file(join(search_dir,file_name), search_string)
         if result:

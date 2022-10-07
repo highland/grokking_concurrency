@@ -6,7 +6,7 @@ import itertools
 import os
 import time
 import concurrent.futures
-import typing as T
+from typing import List
 from os.path import isfile, join
 
 
@@ -15,7 +15,7 @@ def search_file(file_name: str, search_string: str) -> bool:
         return search_string in file.read()
 
 
-def search_files_concurrently(files: T.List[str], search_string: str) -> None:
+def search_files_concurrently(files: List[str], search_string: str) -> None:
     executor = concurrent.futures.ThreadPoolExecutor()
     # assuming flat folder structure
     file_locations = [join(search_dir,file_name) for file_name in files]
