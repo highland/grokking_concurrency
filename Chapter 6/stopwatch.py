@@ -1,4 +1,5 @@
 import time
+from typing import Any
 
 Seconds = float
 
@@ -17,12 +18,13 @@ class Stopwatch:
             self.start_time = time.perf_counter()
             return 0
 
-    def __enter__(self):
+    def __enter__(self) -> None:
         print('Stopwatch started')
         self.start()
 
-    def __exit__(self, type, value, traceback):
+    def __exit__(self, *args: tuple[Any]) -> bool:
         print(f'Stopwatch stopped at {self.elapsed_time} secs')
+        return True
 
 
 if __name__ == '__main__':

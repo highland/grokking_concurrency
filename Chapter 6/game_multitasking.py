@@ -2,7 +2,7 @@
 
 """Implementing the game program using threads utilizing multitasking with time sharing"""
 
-import typing as T
+from typing import Callable
 from threading import Thread, Timer, Event
 from sys import setswitchinterval
 
@@ -17,7 +17,7 @@ class Task(Thread):
     """ A Thread running a given pacman function repeatedly
         while blocking to await a global flag.
     """
-    def __init__(self, func: T.Callable[..., None]):
+    def __init__(self, func: Callable[..., None]):
         super().__init__(daemon=True)   # so that it is closed at end
         self.func = func
 
@@ -34,12 +34,12 @@ class Task(Thread):
 
 class RepeatTimer(Timer):
     """ Calls the given function repeatedly at specified intervals."""
-    def run(self):
+    def run(self) -> None:
         while not self.finished.wait(self.interval):
             self.function(*self.args,**self.kwargs)
 
 
-def clock_tick():
+def clock_tick() -> None:
     """ Sets the Global Flag to allow a waiting Task to run. """
     print('------------Tick')
     GLOBAL_FLAG.set()  # on tick signal waiting Tasks

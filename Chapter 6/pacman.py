@@ -1,9 +1,10 @@
 """ Pacman game implementation"""
 import time
 from random import randrange
+from typing import Dict, Union
 
 # some pacman-specific behavior, probably the bad one, but who knows?
-WORLD_STATE = {}
+WORLD_STATE: Dict[str, Union[int, str]] = {}
 
 
 def get_user_input() -> None:
