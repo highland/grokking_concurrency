@@ -17,7 +17,6 @@ class SyncedBankAccount(UnsyncedBankAccount):
         with self.mutex:
             super().deposit(amount)
 
-
     def withdraw(self, amount: float) -> None:
         with self.mutex:
             super().withdraw(amount)
