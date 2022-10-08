@@ -3,7 +3,7 @@
      to make examples more explicit."""
 
 from threading import Lock
-
+from typing import Any, Tuple
 
 class LockWithName:
     """ A standard python lock but with name attribute added. """
@@ -12,19 +12,19 @@ class LockWithName:
         self.name = name
         self._lock = Lock()
 
-    def acquire(self):
+    def acquire(self) -> None:
         self._lock.acquire()
 
-    def release(self):
+    def release(self) -> None:
         self._lock.release()
 
-    def locked(self):
+    def locked(self) -> bool:
         return self._lock.locked()
     
-    def __enter__(self):
+    def __enter__(self) -> None:
         """ Allows this to be used with context management. """
         self.acquire()
 
-    def __exit__(self, exc_type, exc_value, exc_tb):
+    def __exit__(self, *args: Tuple[Any]) -> None:
         """ Allows this to be used with context management. """
         self.release()

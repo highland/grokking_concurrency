@@ -13,10 +13,12 @@ dumplings = 20
 
 
 class Waiter:
-    def __init__(self):
+    def __init__(self) -> None:
         self.mutex = Lock()
 
-    def ask_for_chopsticks(self, left_chopstick: LockWithName, right_chopstick: LockWithName):
+    def ask_for_chopsticks(self,
+                           left_chopstick: LockWithName,
+                           right_chopstick: LockWithName) -> None:
         with self.mutex:
             left_chopstick.acquire()
             print(f"{left_chopstick.name} grabbed")
@@ -46,12 +48,14 @@ class Philosopher(Thread):
 
         while dumplings > 0:
             print(f"{self.name} asks waiter for chopsticks")
-            self.waiter.ask_for_chopsticks(self.left_chopstick, self.right_chopstick)
+            self.waiter.ask_for_chopsticks(
+                self.left_chopstick, self.right_chopstick)
 
             dumplings -= 1
             print(f"{self.name} eats a dumpling. Dumplings left: {dumplings}")
             print(f"{self.name} returns chopsticks to waiter")
-            self.waiter.release_chopsticks(self.left_chopstick, self.right_chopstick)
+            self.waiter.release_chopsticks(
+                self.left_chopstick, self.right_chopstick)
             time.sleep(THREAD_DELAY)
 
 
@@ -60,8 +64,10 @@ if __name__ == "__main__":
     chopstick_b = LockWithName("chopstick_b")
 
     waiter = Waiter()
-    philosopher_1 = Philosopher("Philosopher #1", waiter, chopstick_a, chopstick_b)
-    philosopher_2 = Philosopher("Philosopher #2", waiter, chopstick_b, chopstick_a)
+    philosopher_1 = Philosopher(
+        "Philosopher #1", waiter, chopstick_a, chopstick_b)
+    philosopher_2 = Philosopher(
+        "Philosopher #2", waiter, chopstick_b, chopstick_a)
 
     philosopher_1.start()
     philosopher_2.start()

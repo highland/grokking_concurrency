@@ -2,7 +2,7 @@
 
 import time
 from threading import Thread
-from deadlock.lock_with_name import LockWithName
+from .deadlock.lock_with_name import LockWithName         # type: ignore
 
 THREAD_DELAY = 1
 dumplings = 20

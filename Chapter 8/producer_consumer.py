@@ -8,11 +8,11 @@ from threading import Thread, Semaphore, Lock
 SIZE = 5
 # shared memory
 BUFFER = ["" for i in range(SIZE)]
+producer_idx: int = 0
 
 mutex = Lock()
 empty = Semaphore(SIZE)
 full = Semaphore(0)
-producer_idx = 0
 
 
 class Producer(Thread):
@@ -24,11 +24,11 @@ class Producer(Thread):
         self.name = name
         self.maximum_items = maximum_items
 
-    def next_index(self, producer_idx) -> int:
+    def next_index(self, index: int) -> int:
         """Get the next empty buffer index"""
-        return (producer_idx + 1) % SIZE
+        return (index + 1) % SIZE
 
-    def run(self):
+    def run(self) -> None:
         global producer_idx
         while self.counter < self.maximum_items:
             # wait till the buffer have some empty slots
@@ -60,7 +60,7 @@ class Consumer(Thread):
         """Get the next buffer index to consume"""
         return (self.idx + 1) % SIZE
 
-    def run(self):
+    def run(self) -> None:
         while self.counter < self.maximum_items:
             # wait till the buffer has some new items to consume
             full.acquire()

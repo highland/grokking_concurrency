@@ -12,12 +12,12 @@ TOTAL_SPOTS = 3
 
 class Garage:
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.semaphore = threading.Semaphore(TOTAL_SPOTS)
         self.cars_lock = threading.Lock()
         self.parked_cars: T.List[str] = []
 
-    def count_parked_cars(self):
+    def count_parked_cars(self) -> int:
         return len(self.parked_cars)
 
     def enter(self, car_name: str) -> None:
@@ -42,7 +42,7 @@ def park_car(garage: Garage, car_name: str) -> None:
     garage.exit(car_name)
 
 
-def test_garage(garage: Garage, number_of_cars: int = 10):
+def test_garage(garage: Garage, number_of_cars: int = 10) -> None:
     threads = []
     for car_num in range(number_of_cars):
         t = threading.Thread(target=park_car, args=(garage, f"car-{car_num}"))
