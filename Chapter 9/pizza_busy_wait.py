@@ -1,4 +1,5 @@
-import socket
+from socket import socket, create_server
+from typing import Set
 
 # the maximum amount of data to be received at once
 BUFFER_SIZE = 1024
@@ -6,12 +7,12 @@ ADDRESS = ("127.0.0.1", 12345)   # address and port of the host machine
 
 
 class Server:
-    clients = set()
+    clients: Set[socket] = set()
 
-    def __init__(self):
+    def __init__(self) -> None:
         try:
             print(f"Starting up at: {ADDRESS}")
-            self.server_socket = socket.create_server(ADDRESS)
+            self.server_socket = create_server(ADDRESS)
             # set socket to non-blocking mode
             self.server_socket.setblocking(False)
             print("Listen for incoming connections")
@@ -22,7 +23,7 @@ class Server:
             self.server_socket.close()
             print("\nServer stopped.")
 
-    def accept(self):
+    def accept(self) -> None:
         try:
             # accepting the incoming connection
             # conn = is a new socket object usable to send and receive data on the
@@ -38,10 +39,10 @@ class Server:
             # indicates that "accept" returned without results
             pass
 
-    def serve(self, conn):
+    def serve(self, conn: socket) -> None:
         try:
-            data = conn.recv(BUFFER_SIZE)
-            if not data:   # recv didn't block, but returned nothing 
+            data: bytes = conn.recv(BUFFER_SIZE)
+            if not data:   # recv didn't block, but returned nothing
                 self.clients.remove(conn)
                 print(f"Connection with {conn.getpeername()} has been closed")
                 conn.close()
@@ -58,7 +59,7 @@ class Server:
             # recv/send returns without data
             pass
 
-    def start(self):
+    def start(self) -> None:
         try:
             while True:
                 self.accept()
