@@ -4,13 +4,11 @@
 
 from selectors import DefaultSelector, EVENT_READ, EVENT_WRITE
 from socket import socket, create_server
-from collections.abc import Callable
+from typing import Union, Tuple, Callable
 
-from typing import TypeAlias
-EVENT_TYPE: TypeAlias = EVENT_READ | EVENT_WRITE
-Data = str
-Action: TypeAlias = (Callable[[socket], None]
-                     | tuple[Callable[[socket, Data], None], Data])
+Data = bytes
+Action = Union[Callable[[socket], None],
+               Tuple[Callable[[socket, Data], None], str]]
 
 # the maximum amount of data to be received at once
 BUFFER_SIZE = 1024
@@ -18,20 +16,20 @@ ADDRESS = ("127.0.0.1", 12345)   # address and port of the host machine
 
 
 class EventLoop:
-    def __init__(self):
+    def __init__(self) -> None:
         # Python library offers us two modules that support synchronous I/O multiplexing:
         # select and selectors. select is more low level and exposes you to the specific
         # select-family syscalls, selectors is a higher level module that choose the best
         # implementation on your system, roughly epoll|kqueue|devpoll > poll > select
         self.event_notifier = DefaultSelector()
 
-    def register_event(self, source: socket, event: EVENT_TYPE, action: Action):
+    def register_event(self, source: socket, event: int, action: Action) -> None:
         try:
             self.event_notifier.register(source, event, action)
         except KeyError:  # already exists so modify
             self.event_notifier.modify(source, event, action)
 
-    def run_forever(self):
+    def run_forever(self) -> None:
         while True:
             # .select() blocks until there are sockets ready for I/O.
             events = self.event_notifier.select()
@@ -46,7 +44,7 @@ class EventLoop:
 
 
 class Server:
-    def __init__(self, event_loop: EventLoop):
+    def __init__(self, event_loop: EventLoop) -> None:
         self.event_loop = event_loop
         try:
             print(f"Starting up at: {ADDRESS}")
@@ -61,7 +59,7 @@ class Server:
             self.server_socket.close()
             print("\nServer stopped.")
 
-    def _on_accept(self, conn):
+    def _on_accept(self, conn: socket) -> None:
         # accepting the incoming connection, non-blocking
         # conn = is a new socket object usable to send and receive data on the connection
         # on the other end of connection
@@ -72,7 +70,7 @@ class Server:
         # connection has any pending I/O events
         self.event_loop.register_event(conn, EVENT_READ, self._on_read)
 
-    def _on_read(self, conn):
+    def _on_read(self, conn: socket) -> None:
         print(f"Message received from {conn.getpeername()}")
         data = conn.recv(BUFFER_SIZE)
         if data:
@@ -84,7 +82,7 @@ class Server:
             print(f"Connection with {conn.getpeername()} has been closed")
             conn.close()
 
-    def _on_write(self, conn, message):
+    def _on_write(self, conn: socket, message: bytes) -> None:
         print(f"Sending a message to {conn.getpeername()}")
         try:
             order = int(message)
@@ -96,7 +94,7 @@ class Server:
         conn.send(response.encode())
         self.event_loop.register_event(conn, EVENT_READ, self._on_read)
 
-    def start(self):
+    def start(self) -> None:
         # registering the server socket for the OS to monitor
         # Once register is done future calls to the self.event_notifier.select() will be notified
         # whether server socket has any pending accept events from the clients
