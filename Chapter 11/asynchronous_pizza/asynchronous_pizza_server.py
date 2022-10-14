@@ -18,9 +18,10 @@ async def _on_client_connected(client_reader: StreamReader, client_writer: Strea
     client_address = client_writer.get_extra_info('peername')
     print(f"Connected to {client_address!r}")
     try:
-        while (data := await client_reader.read(BUFFER_SIZE)) != b'\n':
+        while (data := await client_reader.read(BUFFER_SIZE)) != b'':
             try:
                 order = int(data.decode())
+                print(f'Order for {order} pizzas received from {client_address}')
                 response = f"Thank you for ordering {order} pizzas\n"
             except ValueError:
                 response = f"Unrecognisable order, '{data!r}' - please try again\n"
