@@ -56,8 +56,10 @@ def who(event: Event) -> None:
 
 if __name__ == "__main__":
     event_loop = EventLoop()
-    replying = Event("Who's there?", who)   # A callback which simply does an action.
-    knocking = Event("Knock-knock", knock, replying)   # A callback which does an action and adds another Event to the deque.
+    # A callback which simply does an action.
+    replying = Event("Who's there?", who)
+    # A callback which does an action and adds another Event to the deque.
+    knocking = Event("Knock-knock", knock, replying)
     event_loop.register_event(knocking)
     event_loop.register_event(replying)
     # adding several _events

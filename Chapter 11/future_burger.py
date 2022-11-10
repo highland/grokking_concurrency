@@ -27,28 +27,28 @@ class Future:
 
 
 async def cook() -> Burger:
-    f = Future()
+    order = Future()
 
     def on_callback() -> None:   # Locally defined functiom
         burger: str = f"Burger #{randint(1, 10)}"
         print(f"{burger} is cooked!")
-        f.set_result(burger)
+        order.set_result(burger)
 
     on_callback()
-    c = await f
-    return c
+    cooked_burger = await order
+    return cooked_burger
 
 
 async def cashier(burger: Burger) -> Burger:
-    f = Future()
+    ready = Future()
 
     def on_callback() -> None:
         print("Burger is ready for pick up!")
-        f.set_result(burger)
+        ready.set_result(burger)
 
     on_callback()
-    c = await f
-    return c
+    ordered_burger = await ready
+    return ordered_burger
 
 
 async def order_burger() -> Burger:
@@ -61,8 +61,8 @@ def run_coroutine(coroutine: Coroutine[Any, Any, Result]) -> None:
     try:
         future = coroutine.send(None)
         future.set_coroutine(coroutine)
-    except StopIteration as e:
-        print(f"{e.value}? That's me! Mmmmmm!")
+    except StopIteration as exc:
+        print(f"{exc.value}? That's me! Mmmmmm!")
 
 
 if __name__ == "__main__":

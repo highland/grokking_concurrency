@@ -9,9 +9,9 @@ AsyncTask = Coroutine[Any, Any, Any]
 class EventLoop:
     """ Holds *awaitable* tasks in an queue.
 
-        When the loop is run, tasks are taken from the queue and executed
-        Tasks may be added to the queue at any time
-        The loop continues until the queue is empty
+        When the loop is run, tasks are taken from the queue and executed.
+        Tasks may be added to the queue at any time.
+        The loop continues until the queue is empty.
     """
 
     def __init__(self) -> None:
@@ -26,17 +26,17 @@ class EventLoop:
             task.send(None)
             self.add_coroutine(task)
         except StopIteration:
-            pass
+            print('Task completed')
 
     def run(self) -> None:
-        """ Run the loop until no mare tasks exist in the queue. """
+        """ Run the loop until no more tasks exist in the queue. """
         while self.tasks:
             print("Event loop cycle.")
-            self._run_coroutine(task=self.tasks.popleft())
+            self._run_coroutine(self.tasks.popleft())
 
 
 async def fibonacci(n: int) -> None:   # note *async* keyword
-    """ Generating fibonacci sequence as a non-recursive awaitable task """
+    """ Generating fibonacci sequence as a non-recursive awaitable task (coroutine) """
     a, b = 0, 1
     for i in range(n):
         a, b = b, a + b
