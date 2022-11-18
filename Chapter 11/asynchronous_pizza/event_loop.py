@@ -1,57 +1,60 @@
 """"""
 
-import selectors
+from selectors import DefaultSelector
 from collections import deque
 from future import Future
+from typing import Deque, Coroutine, Any, NoReturn, Union, Callable, Tuple
+from socket import socket
+
+Data = bytes
+Action = Callable[[socket, Any], None]
 
 BUFFER_SIZE = 1024
 
 
 class EventLoop:
-    def __init__(self):
-        self.event_notifier = selectors.DefaultSelector()
-        self.tasks = deque()
-        self.handlers = {}
-
-    def create_future(self):
+    def __init__(self) -> None:
+        self.event_notifier = DefaultSelector()
+        self.tasks: Deque[Coroutine[Any, Any, Any]] = deque()
+ 
+    def create_future(self) -> Future:
         return Future(loop=self)
 
-    def create_future_for_events(self, sock, events):
+    def create_future_for_events(self, sock: socket, events: int) -> Future:
         future = self.create_future()
 
-        def handler(sock, active_events):
+        def handler(sock: socket, result: Any) -> None:
             self.unregister_event(sock)
-            future.set_result(active_events)
+            future.set_result(result)
 
         self.register_event(sock, events, handler)
         return future
 
-    def register_event(self, sock, events, handler):
-        self.handlers[sock] = handler
-        self.event_notifier.register(sock, events, handler)
+    def register_event(self, source: socket, event: int, action: Action) -> None:
+        try:
+            self.event_notifier.register(source, event, action)
+        except KeyError:  # already exists so modify
+            self.event_notifier.modify(source, event, action)
 
-    def unregister_event(self, sock):
-        self.event_notifier.unregister(sock)
-        self.handlers.pop(sock)
-
-    def add_coroutine(self, co):
+    def unregister_event(self, source: socket) -> None:
+        self.event_notifier.unregister(source)
+ 
+    def add_coroutine(self, co: Coroutine[Any, Any, Any]) -> None:
         self.tasks.append(co)
 
-    def run_coroutine(self, co):
+    def run_coroutine(self, co: Coroutine[Any, Any, Any]) -> None:
         try:
             future = co.send(None)
             future.set_coroutine(co)
-        except StopIteration as e:
+        except StopIteration:
             pass
 
-    def run_forever(self):
+    def run_forever(self) -> NoReturn:
         while True:
             while not self.tasks:
                 events = self.event_notifier.select()
-                for key, mask in events:
-                    handler = self.handlers.get(key.fileobj)
-                    if handler:
-                        handler(key.fileobj, events)
+                for (source, _, _, action), _ in events:
+                    action(source)
 
             while self.tasks:
                 self.run_coroutine(co=self.tasks.popleft())
