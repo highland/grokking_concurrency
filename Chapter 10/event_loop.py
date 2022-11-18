@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from collections import deque
 from time import sleep
-from typing import Callable, Optional
+from typing import Callable, Optional, NoReturn
 
 
 class Event:
@@ -33,7 +33,7 @@ class EventLoop:
     def register_event(self, event: Event) -> None:
         self._events.append(event)
 
-    def run_forever(self) -> None:
+    def run_forever(self) -> NoReturn:
         print(f'Queue running with {len(self._events)} events')
         while True:   # busy-waiting
             # execute the action of the next event

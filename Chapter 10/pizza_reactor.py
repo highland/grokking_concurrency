@@ -4,7 +4,7 @@
 
 from selectors import DefaultSelector, EVENT_READ, EVENT_WRITE
 from socket import socket, create_server
-from typing import Union, Tuple, Callable
+from typing import Union, Tuple, Callable, NoReturn
 
 Data = bytes
 Action = Union[Callable[[socket], None],
@@ -29,7 +29,7 @@ class EventLoop:
         except KeyError:  # already exists so modify
             self.event_notifier.modify(source, event, action)
 
-    def run_forever(self) -> None:
+    def run_forever(self) -> NoReturn:
         while True:
             # .select() blocks until there are sockets ready for I/O.
             events = self.event_notifier.select()
