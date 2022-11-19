@@ -1,11 +1,11 @@
 """The best known way to see the future is to wait"""
 
-from typing import Coroutine, Generator, Awaitable, Any
-from event_loop import EventLoop
+from typing import Coroutine, Generator, Awaitable, Any, NewType
+import event_loop
 
 
 class Future(Awaitable[Any]):
-    def __init__(self, loop: EventLoop) -> None:
+    def __init__(self, loop: event_loop.EventLoop) -> None:
         self.loop = loop
         self.done = False
 
