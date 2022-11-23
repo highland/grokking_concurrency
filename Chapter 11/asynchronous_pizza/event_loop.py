@@ -1,9 +1,9 @@
-""""""
+"""Event loop implementation with futures and coroutines"""
 
 from selectors import DefaultSelector
 from collections import deque
 from future import Future
-from typing import Deque, Coroutine, Any, NoReturn, Union, Callable, Tuple
+from typing import Deque, Coroutine, Any, NoReturn, Callable
 from socket import socket
 
 Data = bytes
@@ -16,7 +16,7 @@ class EventLoop:
     def __init__(self) -> None:
         self.event_notifier = DefaultSelector()
         self.tasks: Deque[Coroutine[Any, Any, Any]] = deque()
- 
+
     def create_future(self) -> Future:
         return Future(loop=self)
 
@@ -38,7 +38,7 @@ class EventLoop:
 
     def unregister_event(self, source: socket) -> None:
         self.event_notifier.unregister(source)
- 
+
     def add_coroutine(self, co: Coroutine[Any, Any, Any]) -> None:
         self.tasks.append(co)
 
@@ -54,7 +54,7 @@ class EventLoop:
             while not self.tasks:
                 events = self.event_notifier.select()
                 for (source, _, _, action), _ in events:
-                    action(source)
+                    action(source, events)
 
             while self.tasks:
                 self.run_coroutine(co=self.tasks.popleft())
