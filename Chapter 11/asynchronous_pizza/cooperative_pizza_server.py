@@ -1,7 +1,7 @@
 """Simple one connection TCP/IP socket server"""
-from async_socket import AsyncSocket
 import socket
 from typing import NoReturn
+from async_socket import AsyncSocket
 from event_loop import EventLoop
 
 # the maximum amount of data to be received at once
@@ -13,10 +13,11 @@ PORT = 12345  # port to listen on (non-privileged ports are > 1023)
 class Server:
     def __init__(self) -> None:
         self._loop = EventLoop()
-        self._server_socket: socket = AsyncSocket(
+        self._server_socket = AsyncSocket(
             sock=socket.socket(), loop=self._loop)
         # allows multiple sockets to be bound to an identical socket address
-        self._server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        self._server_socket.setsockopt(
+            socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         try:
             print(f"Starting up on: {HOST}:{PORT}")
             # bind a socket to a specific network interface and port number
@@ -33,17 +34,7 @@ class Server:
         self._loop.run_forever()
         print("Event Loop started")
 
-    async def serve_forever(self) -> NoReturn:
-        try:
-            while True:
-                conn, client_address = await self._server_socket.accept()
-                print(f"Connected to {client_address}")
-                self._loop.add_coroutine(self.serve(conn))
-        finally:
-            self._server_socket.close()
-            print("\nServer stopped.")
-
-    async def serve(self, conn: socket) -> None:
+    async def serve(self, conn: AsyncSocket) -> None:
         try:
             while (data := await conn.recv(BUFFER_SIZE)) != b'\n':
                 try:
@@ -60,6 +51,16 @@ class Server:
             # a request after a certain amount of time.
             print(f"Connection with {conn.getpeername()} has been closed")
             conn.close()
+
+    async def serve_forever(self) -> NoReturn:
+        try:
+            while True:
+                conn, client_address = await self._server_socket.accept()
+                print(f"Connected to {client_address}")
+                self._loop.add_coroutine(self.serve(conn))
+        finally:
+            self._server_socket.close()
+            print("\nServer stopped.")
 
 
 if __name__ == "__main__":
