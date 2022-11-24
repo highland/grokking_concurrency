@@ -36,7 +36,7 @@ class Server:
 
     async def serve(self, conn: AsyncSocket) -> None:
         try:
-            while (data := await conn.recv(BUFFER_SIZE)) != b'\n':
+            while (data := await conn.recv(BUFFER_SIZE)):
                 try:
                     order = int(data.decode())
                     response = f"Thank you for ordering {order} pizzas\n"
