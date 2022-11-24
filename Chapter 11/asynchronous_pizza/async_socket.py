@@ -6,7 +6,7 @@ import selectors
 
 from typing import Tuple, Any
 from socket import socket
-from event_loop_with_pool import EventLoop
+from event_loop import EventLoop
 
 Address = int  # IPAddress
 
