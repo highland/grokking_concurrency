@@ -1,11 +1,11 @@
 """The best known way to see the future is to wait"""
 
-from typing import Coroutine, Generator, Awaitable, Any, NewType
-import event_loop
+from typing import Coroutine, Generator, Any
+from event_loop import EventLoop
 
 
-class Future(Awaitable[Any]):
-    def __init__(self, loop: event_loop.EventLoop) -> None:
+class Future:
+    def __init__(self, loop: EventLoop) -> None:
         self.loop = loop
         self.done = False
 
@@ -19,7 +19,8 @@ class Future(Awaitable[Any]):
         if self.co:
             self.loop.add_coroutine(self.co)
 
-    def __await__(self) -> Generator[Any, None, Any]:  # This 'Magic Method' is what makes Future a future
+    # This 'Magic Method' is what makes Future a future
+    def __await__(self) -> Generator[Any, None, Any]:
         if not self.done:
             yield self
         return self.result
