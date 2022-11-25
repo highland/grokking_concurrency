@@ -10,6 +10,7 @@ Data = bytes
 Action = Callable[[socket, Any], None]
 
 BUFFER_SIZE = 1024
+Mask = int # selectors constants EVENT_READ & EVENT_WRITE
 
 
 class EventLoop:
@@ -20,7 +21,7 @@ class EventLoop:
     def create_future(self) -> Future:
         return Future(loop=self)
 
-    def create_future_for_events(self, sock: socket, events: int) -> Future:
+    def create_future_for_events(self, sock: socket, events: Mask) -> Future:
         future = self.create_future()
 
         def handler(sock: socket, result: Any) -> None:
@@ -52,9 +53,12 @@ class EventLoop:
     def run_forever(self) -> NoReturn:
         while True:
             while not self.tasks:
-                events = self.event_notifier.select()
-                for (source, _, _, action), _ in events:
-                    action(source, events)
+                try:
+                    events = self.event_notifier.select()
+                    for (source, _, _, action), _ in events:
+                        action(source, events)
+                except OSError:
+                    pass
 
             while self.tasks:
                 self.run_coroutine(co=self.tasks.popleft())
