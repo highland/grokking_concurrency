@@ -1,8 +1,9 @@
 import socket
 import time
 
+from concurrent.futures import ThreadPoolExecutor
 from async_socket import AsyncSocket
-from event_loop_with_pool import EventLoop
+from event_loop import EventLoop
 
 BUFFER_SIZE = 1024
 HOST = "127.0.0.1"  # address of the host machine
@@ -19,6 +20,7 @@ class Kitchen:
 
 class Server:
     def __init__(self, loop):
+        self.executor = ThreadPoolExecutor() # to run Tasks in separte threads
         self.loop = loop
         # AF_UNIX and SOCK_STREAM are constants represent the protocol and socket type respectively
         # here we create a TCP/IP socket
@@ -62,7 +64,7 @@ class Server:
                     response = f"Thank you for ordering {order} pizzas\n"
                     print(f"Sending message to {conn.getpeername()}")
                     await conn.send(response.encode())
-                    await self.loop.run_in_executor(Kitchen.cook_pizza, order)
+                    self.executor.submit(Kitchen.cook_pizza, order)
                     print(f"Sending message to {conn.getpeername()}")
                     await conn.send(f"You order on {order} pizzas is ready!\n".encode())
                 except ValueError:
