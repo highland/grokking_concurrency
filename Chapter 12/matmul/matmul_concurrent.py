@@ -26,7 +26,7 @@ def matrix_multiply(matrix_a: Matrix, matrix_b: Matrix) -> Matrix:
     futures: List[Future[Row]] = []
 
     for row_index in range(num_rows_a):
-        futures.append(pool.submit(worker, matrix_a, matrix_b, row_index))
+        futures.append(pool.submit(process_1_row, matrix_a, matrix_b, row_index))
 
     wait(futures)
     solution_matrix = [future.result() for future in futures]
@@ -34,7 +34,7 @@ def matrix_multiply(matrix_a: Matrix, matrix_b: Matrix) -> Matrix:
     return solution_matrix
 
 
-def worker(matrix_a: Matrix, matrix_b: Matrix, row_idx: int) -> Column:
+def process_1_row(matrix_a: Matrix, matrix_b: Matrix, row_idx: int) -> Column:
     """ Creates 1 column of the solution_matrix """
     num_cols_a = len(matrix_a[0])
     num_cols_b = len(matrix_b[0])
