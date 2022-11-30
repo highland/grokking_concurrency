@@ -2,14 +2,15 @@
 """Multiply two matrices concurrently, fine granularity"""
 
 from typing import List
-from concurrent.futures import ProcessPoolExecutor, as_completed, Executor, Future
+from concurrent.futures import ProcessPoolExecutor, wait, Executor, Future
 
 Row = List[int]
+Column = List[int]
 Matrix = List[Row]
 
 
-def worker(matrix_a: Matrix, matrix_b: Matrix, row_idx: int) -> List[int]:
-    # process 1 row in matrix_a
+def worker(matrix_a: Matrix, matrix_b: Matrix, row_idx: int) -> Column:
+    """ Creates 1 column of the solution_matrix """
     num_cols_a = len(matrix_a[0])
     num_cols_b = len(matrix_b[0])
 
@@ -17,7 +18,7 @@ def worker(matrix_a: Matrix, matrix_b: Matrix, row_idx: int) -> List[int]:
     for j in range(num_cols_b):     # for each col in matrix_b
         for k in range(num_cols_a):  # for each col in matrix a
             result_col[j] += matrix_a[row_idx][k] * matrix_b[k][j]
-    return row_idx, result_col  # row index in matrix_a == col index in matrix_c
+    return result_col
 
 
 def matrix_multiply(matrix_a: Matrix, matrix_b: Matrix) -> Matrix:
@@ -37,9 +38,7 @@ def matrix_multiply(matrix_a: Matrix, matrix_b: Matrix) -> Matrix:
     for row_index in range(num_rows_a):
         futures.append(pool.submit(worker, matrix_a, matrix_b, row_index))
 
-    matrix_c = matrix_c = [[0] for _ in range(num_rows_a)]
+    wait(futures)
+    solution_matrix = [future.result() for future in futures]
 
-    for future in as_completed(futures):
-        col_idx, col = future.result()
-        matrix_c[col_idx] = col
-    return matrix_c
+    return solution_matrix

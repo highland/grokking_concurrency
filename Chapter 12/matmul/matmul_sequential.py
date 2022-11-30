@@ -16,9 +16,9 @@ def matrix_multiply(matrix_a: Matrix, matrix_b: Matrix) -> Matrix:
             f"Invalid dimensions; Cannot multiply "
             f"{num_rows_a}x{num_cols_a}*{num_rows_b}x{num_cols_b}"
         )
-    matrix_c = [[0] * num_cols_b for _ in range(num_rows_a)]
+    solution_matrix = [[0] * num_cols_b for _ in range(num_rows_a)]
     for i in range(num_rows_a):         # for each row in matrix_a
         for j in range(num_cols_b):     # for each col in matrix_b
             for k in range(num_cols_a): # for each col in matrix a
-                matrix_c[i][j] += matrix_a[i][k] * matrix_b[k][j]
-    return matrix_c
+                solution_matrix[i][j] += matrix_a[i][k] * matrix_b[k][j]
+    return solution_matrix
