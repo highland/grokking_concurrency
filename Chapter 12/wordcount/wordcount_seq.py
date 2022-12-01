@@ -21,7 +21,6 @@ def wordcount(filenames: List[Pathname]) -> Dict[Word, int]:
             for line in f:
                 words = line.lower().split()
                 for word in words:
-                    word = word.lower()
                     word_counts[word] = 1 + word_counts.get(word, 0)
     return word_counts
 
