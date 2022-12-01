@@ -23,7 +23,7 @@ def matrix_multiply(matrix_a: Matrix, matrix_b: Matrix) -> Matrix:
         )
 
     pool: Executor = ProcessPoolExecutor()
-    futures: List[Future[Row]] = []
+    futures: List[Future[Column]] = []
 
     for row_index in range(num_rows_a):
         futures.append(pool.submit(process_1_row, matrix_a, matrix_b, row_index))
