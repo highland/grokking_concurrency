@@ -1,4 +1,8 @@
 #!/usr/bin/env python3
+""" A version of the author's original without unnecessary use of re module,
+    type hints included
+    and improved variable names'
+"""
 
 import os
 import glob
