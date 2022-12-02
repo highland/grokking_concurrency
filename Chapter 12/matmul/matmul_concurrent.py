@@ -2,7 +2,7 @@
 """ Multiply two matrices concurrently """
 
 from typing import List
-from concurrent.futures import ProcessPoolExecutor, wait, Executor, Future
+from concurrent.futures import ProcessPoolExecutor, wait, Future
 
 Row = List[int]
 Column = List[int]
@@ -22,14 +22,14 @@ def matrix_multiply(matrix_a: Matrix, matrix_b: Matrix) -> Matrix:
             f"{num_rows_a}x{num_cols_a}*{num_rows_b}x{num_cols_b}"
         )
 
-    pool: Executor = ProcessPoolExecutor()
-    futures: List[Future[Column]] = []
-
-    for row_index in range(num_rows_a):
-        futures.append(pool.submit(process_1_row, matrix_a, matrix_b, row_index))
-
-    wait(futures)
-    solution_matrix = [future.result() for future in futures]
+    with ProcessPoolExecutor() as pool:
+        futures: List[Future[Column]] = []
+    
+        for row_index in range(num_rows_a):
+            futures.append(pool.submit(process_1_row, matrix_a, matrix_b, row_index))
+    
+        wait(futures)
+        solution_matrix = [future.result() for future in futures]
 
     return solution_matrix
 
