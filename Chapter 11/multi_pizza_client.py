@@ -23,7 +23,7 @@ def make_client_requests(client: int, orders: List[str]) -> None:
             conn.send(order.encode())
             print(f'Client number {client} sent an order for {order} pizzas')
             response = conn.recv(BUFFER_SIZE)
-            print(f'Client number {client} recieved reply "{response.decode().rstrip()}"')
+            print(f'Client number {client} received reply "{response.decode().rstrip()}"')
             sleep(1)
         conn.send(b"")
         print(f'Client number {client} closing')

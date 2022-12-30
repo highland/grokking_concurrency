@@ -4,6 +4,8 @@ from typing import NoReturn
 from async_socket import AsyncSocket
 from event_loop import EventLoop
 
+#from asynchronous_pizza_joint import Kitchen    # for type hints
+
 # the maximum amount of data to be received at once
 BUFFER_SIZE = 1024
 HOST = "127.0.0.1"  # address of the host machine
@@ -11,10 +13,8 @@ PORT = 12345  # port to listen on (non-privileged ports are > 1023)
 
 
 class Server:
-    def __init__(self) -> None:
-        self._loop = EventLoop()
-        self._server_socket = AsyncSocket(
-            sock=socket.socket(), loop=self._loop)
+    def __init__(self, loop: EventLoop) -> None:
+        self._server_socket = AsyncSocket(socket.socket(), loop)
         # allows multiple sockets to be bound to an identical socket address
         self._server_socket.setsockopt(
             socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -30,13 +30,12 @@ class Server:
         except OSError:
             self._server_socket.close()
             print("\nServer stopped.")
-        self._loop.add_coroutine(self.serve_forever())
-        self._loop.run_forever()
-        print("Event Loop started")
+        loop.add_coroutine(self.serve_forever())
 
     async def serve(self, conn: AsyncSocket) -> None:
         try:
-            while (data := await conn.recv(BUFFER_SIZE)):
+            data = await conn.recv(BUFFER_SIZE) # get first order
+            while data:
                 try:
                     order = int(data.decode())
                     response = f"Thank you for ordering {order} pizzas\n"
@@ -45,6 +44,10 @@ class Server:
                 print(f"Sending message to {conn.getpeername()}")
                 # send a response
                 await conn.send(response.encode())
+                data = await conn.recv(BUFFER_SIZE) # get next order
+        except Exception:
+            self._server_socket.close()
+            print("\nServer stopped.")
         finally:
             # server expects the client to close its side of the connection when it’s done.
             # In a real application, we should use timeout for clients if they don’t send
@@ -57,11 +60,14 @@ class Server:
             while True:
                 conn, client_address = await self._server_socket.accept()
                 print(f"Connected to {client_address}")
-                self._loop.add_coroutine(self.serve(conn))
+                loop.add_coroutine(self.serve(conn))
         finally:
             self._server_socket.close()
             print("\nServer stopped.")
 
 
 if __name__ == "__main__":
-    server = Server()
+    loop = EventLoop()
+    server = Server(loop)
+    loop.run_forever()
+
