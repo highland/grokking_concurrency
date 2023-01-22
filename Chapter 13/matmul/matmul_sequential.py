@@ -19,10 +19,11 @@ def matrix_multiply(matrix_a: Matrix, matrix_b: Matrix) -> Matrix:
             f"Invalid dimensions; Cannot multiply "
             f"{num_rows_a}x{num_cols_a}*{num_rows_b}x{num_cols_b}"
         )
+    # for clarity:
     num_rows_c = num_rows_a
     num_cols_c = num_cols_b
     return [[
-        sum([matrix_a[row][k] * matrix_b[k][col] for k in range(num_cols_a)])
+        sum([matrix_a[row][n] * matrix_b[n][col] for n in range(num_cols_a)])
         for row in range(num_rows_c)]
         for col in range(num_cols_c)]
 
