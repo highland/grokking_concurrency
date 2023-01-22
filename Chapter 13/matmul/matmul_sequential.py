@@ -22,10 +22,11 @@ def matrix_multiply(matrix_a: Matrix, matrix_b: Matrix) -> Matrix:
     # for clarity:
     num_rows_c = num_rows_a
     num_cols_c = num_cols_b
+    
     return [[
         sum([matrix_a[row][n] * matrix_b[n][col] for n in range(num_cols_a)])
-        for row in range(num_rows_c)]
         for col in range(num_cols_c)]
+        for row in range(num_rows_c)]
 
 
 if __name__ == "__main__":
